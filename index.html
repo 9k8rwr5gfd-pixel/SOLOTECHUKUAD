@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,7 +71,7 @@
     color:var(--text-dim);
   }
   .io-buttons{display:flex;gap:8px;}
-  .io-buttons button{
+  .io-buttons button, .io-buttons a{
     background:transparent;
     border:1px solid var(--hairline);
     color:var(--text-dim);
@@ -79,8 +80,11 @@
     padding:6px 10px;
     border-radius:var(--radius);
     cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
   }
-  .io-buttons button:hover{border-color:var(--indigo-dim);color:var(--indigo);}
+  .io-buttons button:hover, .io-buttons a:hover{border-color:var(--indigo-dim);color:var(--indigo);}
 
   /* Section (Plugins / Hardware) tabs */
   .mode-tabs{
@@ -489,6 +493,7 @@
       </div>
     </div>
     <div class="io-buttons">
+      <a href="guide.html">📖 Guide</a>
       <button id="exportBtn">Export</button>
       <button id="importBtn">Import</button>
       <input type="file" id="fileInput" class="hidden-file-input" accept="application/json">
@@ -568,6 +573,10 @@
     <p class="modal-sub" id="moveModalSub"></p>
 
     <div id="moveModalSetPassword">
+      <div id="moveOldPasswordWrap">
+        <label>Current move password</label>
+        <input type="password" id="oldMovePassword" autocomplete="current-password">
+      </div>
       <label>New move password</label>
       <input type="password" id="newPassword1" autocomplete="new-password">
       <label>Confirm password</label>
@@ -599,6 +608,10 @@
     <p class="modal-sub" id="pluginAuthSub"></p>
 
     <div id="pluginAuthSetPassword">
+      <div id="pluginOldPasswordWrap">
+        <label>Current edit password</label>
+        <input type="password" id="oldPluginPassword" autocomplete="current-password">
+      </div>
       <label>New edit password</label>
       <input type="password" id="paNewPassword1" autocomplete="new-password">
       <label>Confirm password</label>
@@ -1466,6 +1479,7 @@ const pluginAuthError = document.getElementById('pluginAuthError');
 function closePluginAuthModal(){
   pluginAuthOverlay.classList.remove('open');
   pendingPluginAction = null;
+  document.getElementById('oldPluginPassword').value = '';
   document.getElementById('paNewPassword1').value = '';
   document.getElementById('paNewPassword2').value = '';
   document.getElementById('pluginAuthPasswordInput').value = '';
@@ -1475,7 +1489,11 @@ function closePluginAuthModal(){
 
 function openPluginSetPasswordModal(){
   pendingPluginAction = null;
-  pluginAuthSub.textContent = 'Set a password to protect edits to the plugin lists.';
+  const hasPassword = !!localStorage.getItem(PLUGIN_PW_KEY);
+  pluginAuthSub.textContent = hasPassword
+    ? 'Enter the current password to set a new one.'
+    : 'Set a password to protect edits to the plugin lists.';
+  document.getElementById('pluginOldPasswordWrap').style.display = hasPassword ? '' : 'none';
   pluginAuthSetPassword.style.display = '';
   pluginAuthEnterPassword.style.display = 'none';
   pluginAuthOverlay.classList.add('open');
@@ -1486,6 +1504,7 @@ function requirePluginAuth(actionFn){
   pendingPluginAction = actionFn;
   if(!hasPassword){
     pluginAuthSub.textContent = 'No edit password set yet — set one first, then try again.';
+    document.getElementById('pluginOldPasswordWrap').style.display = 'none';
     pluginAuthSetPassword.style.display = '';
     pluginAuthEnterPassword.style.display = 'none';
     pluginAuthOverlay.classList.add('open');
@@ -1502,6 +1521,15 @@ document.getElementById('pluginAuthSetCancel').onclick = closePluginAuthModal;
 document.getElementById('pluginAuthCancel').onclick = closePluginAuthModal;
 
 document.getElementById('pluginAuthSetConfirm').onclick = ()=>{
+  const hasPassword = !!localStorage.getItem(PLUGIN_PW_KEY);
+  if(hasPassword){
+    const old = document.getElementById('oldPluginPassword').value;
+    if(!old || simpleHash(old) !== localStorage.getItem(PLUGIN_PW_KEY)){
+      pluginAuthSetError.textContent = 'Current password is incorrect.';
+      pluginAuthSetError.classList.add('show');
+      return;
+    }
+  }
   const p1 = document.getElementById('paNewPassword1').value;
   const p2 = document.getElementById('paNewPassword2').value;
   if(!p1 || p1.length < 4){
@@ -1577,6 +1605,7 @@ let pendingMoveItem = null;
 function closeMoveModal(){
   moveModalOverlay.classList.remove('open');
   pendingMoveItem = null;
+  document.getElementById('oldMovePassword').value = '';
   document.getElementById('newPassword1').value = '';
   document.getElementById('newPassword2').value = '';
   document.getElementById('movePasswordInput').value = '';
@@ -1586,7 +1615,11 @@ function closeMoveModal(){
 
 function openSetPasswordModal(){
   pendingMoveItem = null;
-  moveModalSub.textContent = 'Set a password to protect hardware moves.';
+  const hasPassword = !!localStorage.getItem(PW_KEY);
+  moveModalSub.textContent = hasPassword
+    ? 'Enter the current password to set a new one.'
+    : 'Set a password to protect hardware moves.';
+  document.getElementById('moveOldPasswordWrap').style.display = hasPassword ? '' : 'none';
   moveModalSetPassword.style.display = '';
   moveModalDoMove.style.display = 'none';
   moveModalOverlay.classList.add('open');
@@ -1597,6 +1630,7 @@ function openMoveModal(hwItem){
   pendingMoveItem = hwItem;
   if(!hasPassword){
     moveModalSub.textContent = 'No move password set yet — set one first, then try moving this item again.';
+    document.getElementById('moveOldPasswordWrap').style.display = 'none';
     moveModalSetPassword.style.display = '';
     moveModalDoMove.style.display = 'none';
     moveModalOverlay.classList.add('open');
@@ -1624,6 +1658,15 @@ document.getElementById('setPasswordCancel').onclick = closeMoveModal;
 document.getElementById('moveCancel').onclick = closeMoveModal;
 
 document.getElementById('setPasswordConfirm').onclick = ()=>{
+  const hasPassword = !!localStorage.getItem(PW_KEY);
+  if(hasPassword){
+    const old = document.getElementById('oldMovePassword').value;
+    if(!old || simpleHash(old) !== localStorage.getItem(PW_KEY)){
+      setPasswordError.textContent = 'Current password is incorrect.';
+      setPasswordError.classList.add('show');
+      return;
+    }
+  }
   const p1 = document.getElementById('newPassword1').value;
   const p2 = document.getElementById('newPassword2').value;
   if(!p1 || p1.length < 4){
@@ -1828,6 +1871,16 @@ document.getElementById('fileInput').addEventListener('change', (e)=>{
   };
   reader.readAsText(file);
 });
+
+// Seed an initial edit password on first run only — never overwrites a
+// password that's already been set in this browser (including one changed
+// away from the default).
+if(!localStorage.getItem(PW_KEY)){
+  localStorage.setItem(PW_KEY, simpleHash('Tswift4evA'));
+}
+if(!localStorage.getItem(PLUGIN_PW_KEY)){
+  localStorage.setItem(PLUGIN_PW_KEY, simpleHash('Tswift4evA'));
+}
 
 // Init
 renderSystemTabs();
