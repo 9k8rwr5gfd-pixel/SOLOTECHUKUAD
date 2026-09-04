@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UAD Plugin Library — Solotech UK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14111f;
+    --panel: #1c1830;
+    --panel-raised: #24203d;
+    --hairline: #3a3260;
+    --text: #ece8f7;
+    --text-dim: #a89fc4;
+    --indigo: #8f6fe0;
+    --indigo-dim: #5b4899;
+    --lavender: #d8d0ee;
+    --danger: #c26a7a;
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+
+  /* Header — styled like a rack unit faceplate */
+  .faceplate{
+    background:linear-gradient(180deg, var(--panel-raised), var(--panel));
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:18px 22px;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .led{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--indigo);
+    box-shadow:0 0 6px 1px rgba(111,174,122,0.7);
+    flex-shrink:0;
+  }
+  .brand h1{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    margin:0;
+  }
+  .brand p{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .io-buttons{display:flex;gap:8px;}
+  .io-buttons button{
+    background:transparent;
+    border:1px solid var(--hairline);
+    color:var(--text-dim);
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:var(--radius);
+    cursor:pointer;
+  }
+  .io-buttons button:hover{border-color:var(--indigo-dim);color:var(--indigo);}
+
+  /* Section (Plugins / Hardware) tabs */
+  .mode-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:16px;
+  }
+  .mode-tab{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    padding:9px 18px;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    cursor:pointer;
+    letter-spacing:0.03em;
+  }
+  .mode-tab.active{
+    color:var(--bg);
+    background:var(--indigo);
+    border-color:var(--indigo);
+    font-weight:600;
+  }
+
+  /* System tabs */
+  .systems{
+    display:flex;
+    gap:6px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .sys-tab{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    padding:7px 14px;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    cursor:pointer;
+  }
+  .sys-tab.active{
+    color:var(--bg);
+    background:var(--indigo);
+    border-color:var(--indigo);
+    font-weight:600;
+  }
+  .sys-add{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    padding:7px 12px;
+    background:transparent;
+    border:1px dashed var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    cursor:pointer;
+  }
+  .sys-add:hover{color:var(--indigo);border-color:var(--indigo-dim);}
+
+  /* Search */
+  .search-panel{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .search-input{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    padding:11px 12px;
+  }
+  .search-input:focus{outline:none;border-color:var(--indigo-dim);}
+  .search-meta{
+    margin-top:10px;
+    font-size:12px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  /* Results */
+  .results{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--hairline);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .result-row{
+    background:var(--panel);
+    padding:11px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .result-name{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+  }
+  .result-name mark{
+    background:transparent;
+    color:var(--indigo);
+    font-weight:600;
+  }
+  .result-system{
+    font-size:11px;
+    color:var(--text-dim);
+    border:1px solid var(--hairline);
+    padding:2px 7px;
+    border-radius:20px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .remove-btn{
+    background:none;border:none;color:var(--text-dim);
+    cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;flex-shrink:0;
+  }
+  .remove-btn:hover{color:var(--danger);}
+  .empty-state{
+    padding:24px 14px;
+    text-align:center;
+    color:var(--text-dim);
+    font-size:13px;
+    background:var(--panel);
+  }
+
+  /* Hardware result rows (richer, multi-line) */
+  .hw-row{
+    background:var(--panel);
+    padding:12px 14px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .hw-main{flex:1;min-width:0;}
+  .hw-desc{
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .hw-desc mark{background:transparent;color:var(--indigo);font-weight:700;}
+  .hw-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--text-dim);
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 12px;
+  }
+  .hw-meta mark{background:transparent;color:var(--indigo);}
+  .hw-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+
+  /* Add plugin / hardware section */
+  .add-panel{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:16px;
+  }
+  .add-panel h2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--text-dim);
+    margin:0 0 12px;
+    font-weight:600;
+  }
+  .add-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .add-row input, .add-row select{
+    flex:1;
+    background:var(--bg);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    padding:9px 10px;
+    min-width:0;
+  }
+  .add-row select{flex:0 0 140px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .add-row button{
+    background:var(--indigo);
+    border:none;
+    border-radius:var(--radius);
+    color:var(--bg);
+    font-weight:600;
+    font-size:13px;
+    padding:9px 16px;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+  .add-row button:hover{background:#a688ea;}
+
+  .bulk-toggle{
+    background:none;border:none;color:var(--text-dim);
+    font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-bottom:8px;
+  }
+  .bulk-area{display:none;margin-top:8px;}
+  .bulk-area.open{display:block;}
+  .bulk-area textarea{
+    width:100%;
+    min-height:90px;
+    background:var(--bg);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    padding:10px;
+    resize:vertical;
+  }
+  .bulk-area p{font-size:11.5px;color:var(--text-dim);margin:6px 0;}
+  .bulk-area button{
+    margin-top:8px;
+    background:var(--panel-raised);
+    border:1px solid var(--hairline);
+    color:var(--text);
+    padding:8px 14px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    font-size:12.5px;
+  }
+  .bulk-area button:hover{border-color:var(--indigo-dim);color:var(--indigo);}
+
+  .toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--panel-raised);
+    border:1px solid var(--indigo-dim);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:var(--radius);
+    font-size:13px;
+    font-family:'IBM Plex Mono',monospace;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s;
+  }
+  .toast.show{opacity:1;}
+
+  .hidden-file-input{display:none;}
+
+  /* Hardware capacity summary */
+  .capacity-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .capacity-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    padding:6px 11px;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:20px;
+    color:var(--text-dim);
+  }
+  .capacity-chip.full{
+    color:var(--danger);
+    border-color:var(--danger);
+  }
+  .capacity-note{
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin:-6px 0 14px;
+  }
+
+  .move-btn{
+    background:none;
+    border:1px solid var(--hairline);
+    color:var(--text-dim);
+    cursor:pointer;
+    font-size:11px;
+    font-family:'Inter',sans-serif;
+    padding:4px 9px;
+    border-radius:var(--radius);
+    flex-shrink:0;
+  }
+  .move-btn:hover{border-color:var(--indigo-dim);color:var(--indigo);}
+
+  /* Move modal */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--panel-raised);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:20px;
+    width:100%;
+    max-width:380px;
+  }
+  .modal-box h3{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin:0 0 4px;
+    color:var(--text);
+  }
+  .modal-box .modal-sub{
+    font-size:12px;
+    color:var(--text-dim);
+    margin:0 0 14px;
+  }
+  .modal-box label{
+    display:block;
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-bottom:5px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .modal-box input, .modal-box select{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    padding:9px 10px;
+    margin-bottom:12px;
+  }
+  .modal-error{
+    color:var(--danger);
+    font-size:12px;
+    margin:-6px 0 12px;
+    display:none;
+  }
+  .modal-error.show{display:block;}
+  .modal-actions{
+    display:flex;
+    gap:8px;
+    justify-content:flex-end;
+  }
+  .modal-actions button{
+    padding:9px 16px;
+    border-radius:var(--radius);
+    font-size:13px;
+    cursor:pointer;
+    border:1px solid var(--hairline);
+    background:transparent;
+    color:var(--text-dim);
+  }
+  .modal-actions button.primary{
+    background:var(--indigo);
+    border-color:var(--indigo);
+    color:var(--bg);
+    font-weight:600;
+  }
+  .modal-actions button.primary:hover{background:#a688ea;}
+  .modal-actions button:not(.primary):hover{color:var(--text);}
+
+  .hw-password-link{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:11.5px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:0;
+    margin-bottom:14px;
+  }
+  .hw-password-link:hover{color:var(--indigo);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="faceplate">
+    <div class="brand">
+      <div class="led"></div>
+      <div>
+        <h1>UAD PLUGIN LIBRARY</h1>
+        <p>Solotech UK — UAD system inventory</p>
+      </div>
+    </div>
+    <div class="io-buttons">
+      <button id="exportBtn">Export</button>
+      <button id="importBtn">Import</button>
+      <input type="file" id="fileInput" class="hidden-file-input" accept="application/json">
+    </div>
+  </div>
+
+  <div class="mode-tabs" id="modeTabs">
+    <div class="mode-tab active" data-mode="plugins">UAD Plugins</div>
+    <div class="mode-tab" data-mode="hardware">UAD Hardware</div>
+  </div>
+
+  <!-- ===================== PLUGINS VIEW ===================== -->
+  <div id="pluginsView">
+
+    <div class="systems" id="systemTabs"></div>
+
+    <div class="search-panel">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search UAD plugin name…" autocomplete="off">
+      <div class="search-meta" id="searchMeta"></div>
+    </div>
+
+    <button class="hw-password-link" id="pluginPasswordLink">🔒 Set/change plugin edit password</button>
+
+    <div class="results" id="results"></div>
+
+    <div class="add-panel">
+      <h2>Add UAD plugin (password protected)</h2>
+      <div class="add-row">
+        <input type="text" id="addName" placeholder="Plugin name">
+        <select id="addSystem"></select>
+        <button id="addBtn">Add</button>
+      </div>
+      <button class="bulk-toggle" id="bulkToggle">+ paste a list instead</button>
+      <div class="bulk-area" id="bulkArea">
+        <p>One plugin name per line. Added to the selected system above.</p>
+        <textarea id="bulkText" placeholder="UAD Plugin A&#10;UAD Plugin B&#10;UAD Plugin C"></textarea>
+        <button id="bulkAddBtn">Add all</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== HARDWARE VIEW ===================== -->
+  <div id="hardwareView" style="display:none;">
+
+    <div class="capacity-bar" id="capacityBar"></div>
+    <div class="capacity-note">Six hardware units max per system.</div>
+    <button class="hw-password-link" id="hwPasswordLink">🔒 Set/change move password</button>
+
+    <div class="search-panel">
+      <input type="text" class="search-input" id="hwSearchInput" placeholder="Search UAD hardware — asset ID, serial number, or description…" autocomplete="off">
+      <div class="search-meta" id="hwSearchMeta"></div>
+    </div>
+
+    <div class="results" id="hwResults"></div>
+
+    <div class="add-panel">
+      <h2>Add UAD hardware</h2>
+      <div class="add-row">
+        <input type="text" id="hwAssetId" placeholder="Asset ID">
+        <input type="text" id="hwSerial" placeholder="Serial number">
+      </div>
+      <div class="add-row">
+        <input type="text" id="hwDescription" placeholder="Description">
+        <select id="hwSystem"></select>
+        <button id="hwAddBtn">Add</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="moveModalOverlay">
+  <div class="modal-box">
+    <h3>Move hardware</h3>
+    <p class="modal-sub" id="moveModalSub"></p>
+
+    <div id="moveModalSetPassword">
+      <label>New move password</label>
+      <input type="password" id="newPassword1" autocomplete="new-password">
+      <label>Confirm password</label>
+      <input type="password" id="newPassword2" autocomplete="new-password">
+      <div class="modal-error" id="setPasswordError"></div>
+      <div class="modal-actions">
+        <button id="setPasswordCancel">Cancel</button>
+        <button class="primary" id="setPasswordConfirm">Set password</button>
+      </div>
+    </div>
+
+    <div id="moveModalDoMove" style="display:none;">
+      <label>Move password</label>
+      <input type="password" id="movePasswordInput" autocomplete="current-password">
+      <label>Move to system</label>
+      <select id="moveTargetSystem"></select>
+      <div class="modal-error" id="moveError"></div>
+      <div class="modal-actions">
+        <button id="moveCancel">Cancel</button>
+        <button class="primary" id="moveConfirm">Move</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pluginAuthOverlay">
+  <div class="modal-box">
+    <h3>Plugin list edit password</h3>
+    <p class="modal-sub" id="pluginAuthSub"></p>
+
+    <div id="pluginAuthSetPassword">
+      <label>New edit password</label>
+      <input type="password" id="paNewPassword1" autocomplete="new-password">
+      <label>Confirm password</label>
+      <input type="password" id="paNewPassword2" autocomplete="new-password">
+      <div class="modal-error" id="pluginAuthSetError"></div>
+      <div class="modal-actions">
+        <button id="pluginAuthSetCancel">Cancel</button>
+        <button class="primary" id="pluginAuthSetConfirm">Set password</button>
+      </div>
+    </div>
+
+    <div id="pluginAuthEnterPassword" style="display:none;">
+      <label>Edit password</label>
+      <input type="password" id="pluginAuthPasswordInput" autocomplete="current-password">
+      <div class="modal-error" id="pluginAuthError"></div>
+      <div class="modal-actions">
+        <button id="pluginAuthCancel">Cancel</button>
+        <button class="primary" id="pluginAuthConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---- Seed data: plugins (extracted from screenshots, 2026-09-03) ----
+const PLUGIN_SEED = {
+  "System 1": [
+    "Harrison 32C / 32C SE Channel EQ",
+    "Helios Type 69 Legacy EQ",
+    "Helios Type 69 Preamp and EQ Collection (UAD DSP)",
+    "Korg SDD-3000 Digital Delay",
+    "Teletronix LA-2A Legacy Classic Leveling Amplifier",
+    "EMT 140 Classic Plate Reverberator",
+    "UA 610 Tube Preamp & EQ Collection",
+    "Teletronix LA-2A Leveler Collection",
+    "1176 Classic Limiter Collection",
+    "UA 175B & 176 Tube Compressor Collection",
+    "EMT 250 Classic Electronic Reverb",
+    "Little Labs Voice Of God Bass Resonance",
+    "Pultec Passive EQ Collection",
+    "Pure Plate Reverb",
+    "SSL 4000 E Channel Strip",
+    "SSL 4000 G Bus Compressor",
+    "Studio D Chorus",
+    "Hitsville EQ Collection",
+    "LA-6176 Signature Channel Strip",
+    "Teletronix LA-3A Classic Audio Leveler",
+    "Lexicon 224 Digital Reverb",
+    "Manley Massive Passive EQ",
+    "Manley Tube Preamp",
+    "Manley Variable Mu Limiter Compressor",
+    "Manley VOXBOX Channel Strip",
+    "Neve 1073 Preamp & EQ Collection",
+    "Oxide Tape Recorder",
+    "Avalon VT-737 Tube Channel Strip",
+    "Brigade Chorus",
+    "Capitol Chambers",
+    "Century Tube Channel Strip",
+    "dbx 160 Compressor / Limiter",
+    "Empirical Labs EL8 Distressor Compressor",
+    "Fairchild Tube Limiter Collection",
+    "Galaxy Tape Echo",
+    "Helios Type 69 Preamp and EQ Collection",
+    "Hitsville Reverb Chambers",
+    "V76 Preamplifier",
+    "Vertigo Sound VSC-2 Compressor",
+    "Vertigo Sound VSM-3 Mix Satellite",
+    "API 2500 Bus Compressor",
+    "API Vision Channel Strip Collection",
+    "SSL 4000 G Bus Compressor Collection (UAD DSP)",
+    "Summit Audio TLA-100A Compressor",
+    "Cooper Time Cube Mk II Delay",
+    "Trident A-Range Classic Console EQ",
+    "TS Overdrive",
+    "Tube-Tech CL 1B Compressor",
+    "Tube-Tech EQ Collection",
+    "Tube-Tech CL 1B MkII Compressor",
+    "Tube-Tech ME 1B Equalizer",
+    "Tube-Tech PE 1C Equalizer",
+    "Raw Distortion",
+    "Roland RE-201 Space Echo Tape Delay",
+    "RealVerb Pro Custom Room Modeler",
+    "Shadow Hills Mastering Compressor",
+    "SPL Transient Designer",
+    "SPL TwinTube Processor",
+    "SPL Vitalizer MK2-T",
+    "SSL E Series Channel Strip",
+    "SSL G Series Bus Compressor",
+    "SSL 4000 E Channel Strip Collection (UAD DSP)",
+    "Precision EQ",
+    "Precision Limiter",
+    "Precision K-Stereo Ambience Recovery",
+    "Pultec EQP-1A Legacy",
+    "Pultec Legacy EQs",
+    "Neve 31102 / 31102SE Classic Console EQs",
+    "Neve 33609 / 33609SE Compressor",
+    "Neve 88RS Channel Strip",
+    "Neve 88RS Channel Strip Collection",
+    "Ocean Way Studios",
+    "Sonnox Oxford Dynamic EQ",
+    "Sonnox Oxford Envolution",
+    "Sonnox Oxford Inflator",
+    "Sonnox Oxford Limiter v2",
+    "Sonnox Oxford EQ",
+    "Neve Dynamics Collection",
+    "Neve Preamp",
+    "Neve 1073 / 1073SE Classic Console EQs",
+    "Neve 1081 / 1081SE Classic Console EQ",
+    "Neve 1084 Preamp & EQ",
+    "Precision Maximizer",
+    "Moog Multimode Filter",
+    "Moog Multimode Filter Collection",
+    "Precision Multiband",
+    "MXR Flanger/Doubler",
+    "Lexicon 480L Digital Reverb and Effects",
+    "Little Labs IBP Phase Alignment Tool",
+    "Maag EQ4 EQ",
+    "Manley Variable Mu Limiter Compressor (UAD DSP)",
+    "Marshall Plexi Classic Amplifier",
+    "EP-34 Tape Echo",
+    "Eventide H910 Harmonizer",
+    "Fairchild 670 Legacy Compressor",
+    "FATSO Jr./Sr. Tape Sim. & Compressor",
+    "Fender '55 Tweed Deluxe",
+    "DreamVerb Room Modeler",
+    "Dytronics Cyclosonic Panner",
+    "elysia alpha compressor",
+    "Precision Enhancer kHz",
+    "Precision Enhancer Hz",
+    "Chandler Limited Zener Limiter",
+    "Precision Mix Rack Collection",
+    "Thermionic Culture Vulture",
+    "Precision De-Esser",
+    "Roland Dimension D",
+    "Brainworx bx_saturator V2",
+    "Brainworx bx_tuner",
+    "Cambridge EQ",
+    "BOSS CE-1 Chorus Ensemble",
+    "Chandler Limited Curve Bender Mastering EQ",
+    "OTO BISCUIT 8-bit Effects",
+    "Precision Buss Compressor",
+    "Brainworx bx_digital V2 EQ",
+    "Brainworx bx_digital V3 EQ Collection",
+    "Brainworx bx_refinement",
+    "API Preamp",
+    "API Vision Channel Strip",
+    "Antares Auto-Tune Realtime",
+    "Antares Auto-Tune Realtime Access",
+    "Bermuda Triangle",
+    "Ampeg SVT-3 PRO Bass Amplifier",
+    "Ampeg SVT-VR Classic Bass Amp",
+    "AMS RMX16 Digital Reverb",
+    "AMS RMX16 Expanded Digital Reverb",
+    "API 500 Series EQ Collection",
+    "Ampex ATR-102 Mastering Tape Recorder",
+    "Studer A800 Multichannel Tape Recorder",
+    "1176LN & SE Legacy",
+    "1176SE Legacy Classic Limiting Amplifier",
+    "AKG BX 20 Spring Reverb"
+  ],
+  "System 2": [
+    "Bermuda Triangle",
+    "Precision Buss Compressor",
+    "Brainworx bx_digital V2 EQ",
+    "Brainworx bx_digital V3 EQ Collection",
+    "Cambridge EQ",
+    "UA 610 Tube Preamp & EQ Collection",
+    "1176 Classic Limiter Collection",
+    "UA 175B & 176 Tube Compressor Collection",
+    "EMT 250 Classic Electronic Reverb",
+    "Little Labs Voice Of God Bass Resonance",
+    "EMT 140 Classic Plate Reverberator",
+    "Pure Plate Reverb",
+    "SSL 4000 E Channel Strip",
+    "SSL 4000 G Bus Compressor",
+    "Studio D Chorus",
+    "Teletronix LA-2A Leveler Collection",
+    "Manley Variable Mu Limiter Compressor",
+    "Manley VOXBOX Channel Strip",
+    "Neve 1073 Preamp & EQ Collection",
+    "Oxide Tape Recorder",
+    "Pultec Passive EQ Collection",
+    "Hitsville EQ Collection",
+    "Teletronix LA-3A Classic Audio Leveler",
+    "Lexicon 224 Digital Reverb",
+    "Manley Massive Passive EQ",
+    "Manley Tube Preamp",
+    "Empirical Labs EL8 Distressor Compressor",
+    "Fairchild Tube Limiter Collection",
+    "Galaxy Tape Echo",
+    "Helios Type 69 Preamp and EQ Collection",
+    "Hitsville Reverb Chambers",
+    "Avalon VT-737 Tube Channel Strip",
+    "Brigade Chorus",
+    "Capitol Chambers",
+    "Century Tube Channel Strip",
+    "dbx 160 Compressor / Limiter",
+    "SSL G Series Bus Compressor",
+    "SSL 4000 E Channel Strip Collection (UAD DSP)",
+    "SSL 4000 G Bus Compressor Collection (UAD DSP)",
+    "Cooper Time Cube Mk II Delay",
+    "Trident A-Range Classic Console EQ",
+    "TS Overdrive",
+    "Tube-Tech CL 1B Compressor",
+    "V76 Preamplifier",
+    "API 2500 Bus Compressor",
+    "API Vision Channel Strip Collection",
+    "Pultec Legacy EQs",
+    "Raw Distortion",
+    "RealVerb Pro Custom Room Modeler",
+    "SPL Transient Designer",
+    "SSL E Series Channel Strip",
+    "Sonnox Oxford Dynamic EQ",
+    "Precision EQ",
+    "Precision Limiter",
+    "Precision K-Stereo Ambience Recovery",
+    "Pultec EQP-1A Legacy",
+    "Neve 31102 / 31102SE Classic Console EQs",
+    "Neve 33609 / 33609SE Compressor",
+    "Neve 88RS Channel Strip",
+    "Neve 88RS Channel Strip Collection",
+    "Ocean Way Studios",
+    "Neve Dynamics Collection",
+    "Neve Preamp",
+    "Neve 1073 / 1073SE Classic Console EQs",
+    "Neve 1081 / 1081SE Classic Console EQ",
+    "Neve 1084 Preamp & EQ",
+    "Teletronix LA-2A Legacy Classic Leveling Amplifier",
+    "Lexicon 480L Digital Reverb and Effects",
+    "Little Labs IBP Phase Alignment Tool",
+    "Manley Variable Mu Limiter Compressor (UAD DSP)",
+    "Marshall Plexi Classic Amplifier",
+    "Precision Maximizer",
+    "Moog Multimode Filter",
+    "Moog Multimode Filter Collection",
+    "Precision Multiband",
+    "MXR Flanger/Doubler",
+    "Precision Enhancer kHz",
+    "Precision Enhancer Hz",
+    "EP-34 Tape Echo",
+    "Fairchild 670 Legacy Compressor",
+    "FATSO Jr./Sr. Tape Sim. & Compressor",
+    "Fender '55 Tweed Deluxe",
+    "Harrison 32C / 32C SE Channel EQ",
+    "Helios Type 69 Legacy EQ",
+    "Helios Type 69 Preamp and EQ Collection (UAD DSP)",
+    "Korg SDD-3000 Digital Delay",
+    "Precision Mix Rack Collection",
+    "Thermionic Culture Vulture",
+    "Precision De-Esser",
+    "DreamVerb Room Modeler",
+    "elysia alpha compressor",
+    "API Preamp",
+    "API Vision Channel Strip",
+    "Antares Auto-Tune Realtime",
+    "Antares Auto-Tune Realtime Access",
+    "Antares Auto-Tune Realtime Advanced",
+    "Ampex ATR-102 Mastering Tape Recorder",
+    "Studer A800 Multichannel Tape Recorder",
+    "1176LN & SE Legacy",
+    "1176SE Legacy Classic Limiting Amplifier",
+    "AKG BX 20 Spring Reverb",
+    "Ampeg SVT-VR Classic Bass Amp",
+    "AMS DMX Digital Delay & Pitch Shifter",
+    "AMS RMX16 Digital Reverb",
+    "AMS RMX16 Expanded Digital Reverb",
+    "API 500 Series EQ Collection"
+  ],
+  "System 3": [
+    "Korg SDD-3000 Digital Delay",
+    "Teletronix LA-2A Legacy Classic Leveling Amplifier",
+    "Lexicon 480L Digital Reverb and Effects",
+    "Little Labs IBP Phase Alignment Tool",
+    "Maag EQ4 EQ",
+    "SSL 4000 E Channel Strip",
+    "SSL 4000 G Bus Compressor",
+    "Studio D Chorus",
+    "Teletronix LA-2A Leveler Collection",
+    "1176 Classic Limiter Collection",
+    "UA 175B & 176 Tube Compressor Collection",
+    "EMT 250 Classic Electronic Reverb",
+    "Little Labs Voice Of God Bass Resonance",
+    "EMT 140 Classic Plate Reverberator",
+    "UA 610 Tube Preamp & EQ Collection",
+    "Manley VOXBOX Channel Strip",
+    "Neve 1073 Preamp & EQ Collection",
+    "Oxide Tape Recorder",
+    "Pultec Passive EQ Collection",
+    "Pure Plate Reverb",
+    "Galaxy Tape Echo",
+    "Helios Type 69 Preamp and EQ Collection",
+    "Hitsville Reverb Chambers",
+    "Hitsville EQ Collection",
+    "LA-6176 Signature Channel Strip",
+    "Teletronix LA-3A Classic Audio Leveler",
+    "Lexicon 224 Digital Reverb",
+    "Manley Massive Passive EQ",
+    "Manley Tube Preamp",
+    "Manley Variable Mu Limiter Compressor",
+    "Valley People Dyna-mite",
+    "API 2500 Bus Compressor",
+    "API Vision Channel Strip Collection",
+    "Avalon VT-737 Tube Channel Strip",
+    "Brigade Chorus",
+    "Capitol Chambers",
+    "Century Tube Channel Strip",
+    "dbx 160 Compressor / Limiter",
+    "Empirical Labs EL8 Distressor Compressor",
+    "Fairchild Tube Limiter Collection",
+    "Tube-Tech ME 1B Equalizer",
+    "Tube-Tech PE 1C Equalizer",
+    "V76 Preamplifier",
+    "Vertigo Sound VSC-2 Compressor",
+    "Vertigo Sound VSM-3 Mix Satellite",
+    "Trident A-Range Classic Console EQ",
+    "TS Overdrive",
+    "Tube-Tech CL 1B Compressor",
+    "Tube-Tech EQ Collection",
+    "Tube-Tech CL 1B MkII Compressor",
+    "Suhr PT100 Amplifier",
+    "Suhr SE100 Amplifier",
+    "Summit Audio TLA-100A Compressor",
+    "Cooper Time Cube Mk II Delay",
+    "Tonelux Tilt EQ",
+    "SSL 4000 E Channel Strip Collection (UAD DSP)",
+    "SSL 4000 G Bus Compressor Collection (UAD DSP)",
+    "Softube Bass Amp Room",
+    "Softube Metal Amp Room",
+    "Softube Vintage Amp Room",
+    "SPL Transient Designer",
+    "SPL TwinTube Processor",
+    "SPL Vitalizer MK2-T",
+    "SSL E Series Channel Strip",
+    "SSL G Series Bus Compressor",
+    "Shadow Hills Mastering Compressor",
+    "Sound Machine Wood Works",
+    "Softube Half Stack Amp Room",
+    "Softube Bass 8x10 Amp Room",
+    "Softube Vocoder",
+    "Precision K-Stereo Ambience Recovery",
+    "Pultec EQP-1A Legacy",
+    "Pultec Legacy EQs",
+    "Raw Distortion",
+    "RealVerb Pro Custom Room Modeler",
+    "Sonnox Oxford Limiter v2",
+    "Sonnox Oxford SuprEsser DS",
+    "Sonnox Oxford EQ",
+    "Precision EQ",
+    "Precision Limiter",
+    "Neve 88RS Channel Strip Collection",
+    "Ocean Way Studios",
+    "Sonnox Oxford Dynamic EQ",
+    "Sonnox Oxford Envolution",
+    "Sonnox Oxford Inflator",
+    "Moog Multimode Filter Collection",
+    "Precision Multiband",
+    "MXR Flanger/Doubler",
+    "Neve 1073 / 1073SE Classic Console EQs",
+    "Neve 88RS Channel Strip",
+    "Marshall Silver Jubilee 2555",
+    "Precision Maximizer",
+    "Massenburg MDWEQ5 Parametric EQ",
+    "Millennia NSEQ-2 EQ",
+    "Moog Multimode Filter",
+    "Manley Variable Mu Limiter Compressor (UAD DSP)",
+    "Marshall Bluesbreaker 1962",
+    "Marshall JMP 2203",
+    "Marshall Plexi Classic Amplifier",
+    "Marshall Plexi Super Lead 1959",
+    "Fuchs Train II Amplifier",
+    "Gallien-Krueger 800RB Bass Amp",
+    "Harrison 32C / 32C SE Channel EQ",
+    "Helios Type 69 Legacy EQ",
+    "Helios Type 69 Preamp and EQ Collection (UAD DSP)",
+    "Friedman Amplifiers Collection",
+    "Friedman BE100",
+    "Friedman Buxom Betty Amplifier",
+    "Friedman DS40",
+    "Fuchs Overdrive Supreme 50 Amplifier",
+    "EP-34 Tape Echo",
+    "Eventide H910 Harmonizer",
+    "Fairchild 670 Legacy Compressor",
+    "FATSO Jr./Sr. Tape Sim. & Compressor",
+    "Fender '55 Tweed Deluxe",
+    "Diezel VH4 Amplifier",
+    "DreamVerb Room Modeler",
+    "Eden WT800 Bass Amplifier",
+    "elysia alpha compressor",
+    "elysia mpressor",
+    "ENGL E646 VS Limited Edition",
+    "ENGL E765 Retro Tube",
+    "ENGL Savage 120 Amplifier",
+    "Precision Enhancer kHz",
+    "Precision Enhancer Hz",
+    "Precision Mix Rack Collection",
+    "Thermionic Culture Vulture",
+    "Dangerous BAX EQ Collection",
+    "Precision De-Esser",
+    "Diezel Herbert Amplifier",
+    "C-Suite C-Vox Noise & Ambience Reduction",
+    "Cambridge EQ",
+    "Chandler Limited GAV19T Amplifier",
+    "Chandler Limited Curve Bender Mastering EQ",
+    "Chandler Limited Zener Limiter",
+    "Brainworx bx_refinement",
+    "Brainworx bx_saturator V2",
+    "Brainworx bx_tuner",
+    "C-Suite C-Axe Guitar Noise Suppressor",
+    "C-Suite C-Max Limiter",
+    "Brainworx bx_digital V2 EQ",
+    "Brainworx bx_digital V3 EQ Collection",
+    "Brainworx bx_masterdesk",
+    "Brainworx bx_masterdesk Classic",
+    "bx_subsynth Subharmonic Synth",
+    "Antares Auto-Tune Realtime Advanced",
+    "Auto-Tune Realtime X",
+    "Bermuda Triangle",
+    "OTO BISCUIT 8-bit Effects",
+    "Precision Buss Compressor",
+    "Ampeg SVT-VR Classic Bass Amp",
+    "API 500 Series EQ Collection",
+    "API Preamp",
+    "API Vision Channel Strip",
+    "Antares Auto-Tune Realtime Access",
+    "A/DA STD-1 Stereo Tapped Delay",
+    "AKG BX 20 Spring Reverb",
+    "Ampeg B-15N Bass Amplifier",
+    "Ampeg SVT-3 PRO Bass Amplifier",
+    "Ampeg SVT-VR Bass Amplifier",
+    "Ampex ATR-102 Mastering Tape Recorder",
+    "Studer A800 Multichannel Tape Recorder",
+    "1176LN & SE Legacy",
+    "1176SE Legacy Classic Limiting Amplifier",
+    "A/DA Flanger"
+  ],
+  "System 4": [
+    "Oxide Tape Recorder",
+    "Pure Plate Reverb",
+    "Studio D Chorus",
+    "UA 610 Tube Preamp & EQ Collection",
+    "Cooper Time Cube Mk II Delay",
+    "Century Tube Channel Strip",
+    "dbx 160 Compressor / Limiter",
+    "Galaxy Tape Echo",
+    "Lexicon 224 Digital Reverb",
+    "Precision Enhancer Hz",
+    "EP-34 Tape Echo",
+    "Precision Maximizer",
+    "Precision EQ",
+    "Precision Limiter",
+    "Studer A800 Multichannel Tape Recorder",
+    "Antares Auto-Tune Realtime Access",
+    "Precision Buss Compressor",
+    "Precision De-Esser",
+    "Precision Enhancer kHz"
+  ],
+  "System 5": [
+    "Precision Limiter",
+    "Cooper Time Cube Mk II Delay",
+    "dbx 160 Compressor / Limiter",
+    "Lexicon 224 Digital Reverb",
+    "Studer A800 Multichannel Tape Recorder",
+    "Precision De-Esser",
+    "Precision Enhancer kHz",
+    "Precision Enhancer Hz",
+    "EP-34 Tape Echo"
+  ],
+  "System 6": [
+    "Precision De-Esser"
+  ]
+};
+
+// ---- Seed data: hardware (from UAD_hardware.xlsx, sheet 1, 2026-09-03) ----
+const HARDWARE_SEED = [
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "P13386",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18285003000537",
+    "system": "System 1"
+  },
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "P13387",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18285003000530",
+    "system": "System 2"
+  },
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "P14013",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18385003000792",
+    "system": "System 2"
+  },
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "P30865",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18385003000814",
+    "system": "System 1"
+  },
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "P13388",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18285003000446",
+    "system": "System 1"
+  },
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "P14014",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18385003000844",
+    "system": "System 1"
+  },
+  {
+    "pid": "LIVERACKCORE",
+    "assetId": "026232",
+    "description": "UAD-2 Live Rack Core",
+    "serial": "18145003000247",
+    "system": "System 1"
+  },
+  {
+    "pid": "APOLLOX16DULT",
+    "assetId": "APOLLOX16DULT-002",
+    "description": "Universal Audio Apollo X16D Ultimate Edition",
+    "serial": "24212073000818",
+    "system": "System 3"
+  },
+  {
+    "pid": "APOLLOX16DULT",
+    "assetId": "P87971",
+    "description": "Universal Audio Apollo X16D Ultimate Edition",
+    "serial": "24192073000226",
+    "system": "System 3"
+  },
+  {
+    "pid": "APOLLOX16",
+    "assetId": "P13412",
+    "description": "Thunderbolt Audio Interface",
+    "serial": "21102020005298",
+    "system": "System 2"
+  },
+  {
+    "pid": "APOLLOX16",
+    "assetId": "P13411",
+    "description": "Thunderbolt Audio Interface",
+    "serial": "21102020005259",
+    "system": "System 2"
+  },
+  {
+    "pid": "APOLLOX16D",
+    "assetId": "P87970",
+    "description": "Dante Audio Interface [16 Inputs / 16 Outputs, AES67, 48 kHz]",
+    "serial": "24192073000574",
+    "system": "System 3"
+  },
+  {
+    "pid": "APOLLOX16D",
+    "assetId": "P87972",
+    "description": "Dante Audio Interface [16 Inputs / 16 Outputs, AES67, 48 kHz]",
+    "serial": "24192073000582",
+    "system": "System 3"
+  },
+  {
+    "pid": "APOLLOX16D",
+    "assetId": "APOLLOX16D-001",
+    "description": "Dante Audio Interface [16 Inputs / 16 Outputs, AES67, 48 kHz]",
+    "serial": "24192073000689",
+    "system": "System 3"
+  },
+  {
+    "pid": "APOLLOX16D",
+    "assetId": "APOLLOX16D-002",
+    "description": "Dante Audio Interface [16 Inputs / 16 Outputs, AES67, 48 kHz]",
+    "serial": "24192073000717",
+    "system": "System 3"
+  }
+];
+
+const STORAGE_KEY = "pluginLibraryData_v2";
+
+function defaultData(){
+  return { systems: JSON.parse(JSON.stringify(PLUGIN_SEED)), hardware: HARDWARE_SEED.slice() };
+}
+
+function loadData(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try {
+      const stored = JSON.parse(raw);
+      if(!stored.systems) stored.systems = {};
+      if(!stored.hardware) stored.hardware = [];
+
+      // Fold in any seed plugins/systems this browser hasn't seen yet.
+      // Purely additive: never removes anything already in storage
+      // (including manual edits), just adds seed entries missing by name.
+      let changed = false;
+      Object.keys(PLUGIN_SEED).forEach(sys=>{
+        if(!stored.systems[sys]){
+          stored.systems[sys] = PLUGIN_SEED[sys].slice();
+          changed = true;
+        } else {
+          PLUGIN_SEED[sys].forEach(name=>{
+            if(!stored.systems[sys].some(n=>n.toLowerCase()===name.toLowerCase())){
+              stored.systems[sys].push(name);
+              changed = true;
+            }
+          });
+        }
+      });
+
+      // Fold in any seed hardware rows not already present (matched by assetId).
+      HARDWARE_SEED.forEach(hw=>{
+        if(!stored.hardware.some(h=>String(h.assetId).toLowerCase()===String(hw.assetId).toLowerCase())){
+          stored.hardware.push(Object.assign({}, hw));
+          changed = true;
+        }
+      });
+
+      if(changed) saveData(stored);
+      return stored;
+    } catch(e) { /* fall through to seed */ }
+  }
+  const fresh = defaultData();
+  saveData(fresh);
+  return fresh;
+}
+function saveData(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let data = loadData();
+let activeSystem = Object.keys(data.systems)[0] || null;
+let activeMode = 'plugins';
+
+const modeTabsEl = document.getElementById('modeTabs');
+const pluginsView = document.getElementById('pluginsView');
+const hardwareView = document.getElementById('hardwareView');
+const systemTabsEl = document.getElementById('systemTabs');
+const searchInput = document.getElementById('searchInput');
+const searchMeta = document.getElementById('searchMeta');
+const resultsEl = document.getElementById('results');
+const addSystemSelect = document.getElementById('addSystem');
+const toastEl = document.getElementById('toast');
+
+const hwSearchInput = document.getElementById('hwSearchInput');
+const hwSearchMeta = document.getElementById('hwSearchMeta');
+const hwResultsEl = document.getElementById('hwResults');
+const hwSystemSelect = document.getElementById('hwSystem');
+
+modeTabsEl.querySelectorAll('.mode-tab').forEach(tab=>{
+  tab.onclick = ()=>{
+    activeMode = tab.dataset.mode;
+    modeTabsEl.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active', t===tab));
+    pluginsView.style.display = activeMode === 'plugins' ? '' : 'none';
+    hardwareView.style.display = activeMode === 'hardware' ? '' : 'none';
+    if(activeMode === 'hardware'){ populateHwSystemSelect(); renderCapacityBar(); renderHwResults(); }
+  };
+});
+
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), 1600);
+}
+
+function allSystemNames(){
+  // Union of plugin-system names and any system referenced by hardware,
+  // so hardware assigned to a system with no plugins yet still shows up.
+  const names = new Set(Object.keys(data.systems));
+  data.hardware.forEach(h=>{ if(h.system) names.add(h.system); });
+  return Array.from(names).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true}));
+}
+
+/* ===================== PLUGINS ===================== */
+
+function renderSystemTabs(){
+  systemTabsEl.innerHTML = '';
+  Object.keys(data.systems).forEach(sys=>{
+    const tab = document.createElement('div');
+    tab.className = 'sys-tab' + (sys === activeSystem ? ' active' : '');
+    tab.textContent = sys + ' (' + data.systems[sys].length + ')';
+    tab.onclick = ()=>{ activeSystem = sys; renderSystemTabs(); renderResults(); populateAddSystemSelect(); };
+    systemTabsEl.appendChild(tab);
+  });
+  const addTab = document.createElement('div');
+  addTab.className = 'sys-add';
+  addTab.textContent = '+ system';
+  addTab.onclick = ()=>{
+    const name = prompt('New system name (e.g. System 7):');
+    if(name && name.trim() && !data.systems[name.trim()]){
+      data.systems[name.trim()] = [];
+      activeSystem = name.trim();
+      saveData(data);
+      renderSystemTabs();
+      renderResults();
+      populateAddSystemSelect();
+    } else if (name && data.systems[name.trim()]) {
+      showToast('That system already exists');
+    }
+  };
+  systemTabsEl.appendChild(addTab);
+}
+
+function populateAddSystemSelect(){
+  addSystemSelect.innerHTML = '';
+  Object.keys(data.systems).forEach(sys=>{
+    const opt = document.createElement('option');
+    opt.value = sys;
+    opt.textContent = sys;
+    if(sys === activeSystem) opt.selected = true;
+    addSystemSelect.appendChild(opt);
+  });
+}
+
+function highlight(name, query){
+  if(!query) return name;
+  const idx = name.toLowerCase().indexOf(query.toLowerCase());
+  if(idx === -1) return name;
+  return name.slice(0,idx) + '<mark>' + name.slice(idx, idx+query.length) + '</mark>' + name.slice(idx+query.length);
+}
+
+function renderResults(){
+  const query = searchInput.value.trim();
+  resultsEl.innerHTML = '';
+
+  // Build a flat list across ALL systems so newer systems are searchable too
+  let matches = [];
+  Object.keys(data.systems).forEach(sys=>{
+    data.systems[sys].forEach(name=>{
+      if(!query || name.toLowerCase().includes(query.toLowerCase())){
+        matches.push({name, system: sys});
+      }
+    });
+  });
+
+  if(query){
+    searchMeta.textContent = matches.length + ' match' + (matches.length===1?'':'es') + ' for "' + query + '"';
+  } else {
+    searchMeta.textContent = activeSystem ? (data.systems[activeSystem].length + ' plugins in ' + activeSystem) : 'No systems yet';
+    matches = data.systems[activeSystem] ? data.systems[activeSystem].map(name=>({name, system: activeSystem})) : [];
+  }
+
+  matches.sort((a,b)=>a.name.localeCompare(b.name));
+
+  if(matches.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = query ? 'No plugin matching "' + query + '" in any system.' : 'No plugins in this system yet.';
+    resultsEl.appendChild(empty);
+    return;
+  }
+
+  matches.forEach(m=>{
+    const row = document.createElement('div');
+    row.className = 'result-row';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'result-name';
+    nameEl.innerHTML = highlight(m.name, query);
+
+    const right = document.createElement('div');
+    right.style.display = 'flex';
+    right.style.alignItems = 'center';
+    right.style.gap = '10px';
+
+    const sysTag = document.createElement('div');
+    sysTag.className = 'result-system';
+    sysTag.textContent = m.system;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.title = 'Remove from ' + m.system;
+    removeBtn.textContent = '✕';
+    removeBtn.onclick = ()=>{
+      requirePluginAuth(()=>{
+        data.systems[m.system] = data.systems[m.system].filter(n=>n!==m.name);
+        saveData(data);
+        renderSystemTabs();
+        renderResults();
+        showToast('Removed "' + m.name + '" from ' + m.system);
+      });
+    };
+
+    right.appendChild(sysTag);
+    right.appendChild(removeBtn);
+    row.appendChild(nameEl);
+    row.appendChild(right);
+    resultsEl.appendChild(row);
+  });
+}
+
+searchInput.addEventListener('input', renderResults);
+
+function doAddPlugin(){
+  const name = document.getElementById('addName').value.trim();
+  const sys = addSystemSelect.value;
+  if(!name || !sys) return;
+  if(data.systems[sys].some(n=>n.toLowerCase()===name.toLowerCase())){
+    showToast('Already in ' + sys);
+    return;
+  }
+  data.systems[sys].push(name);
+  saveData(data);
+  document.getElementById('addName').value = '';
+  renderSystemTabs();
+  renderResults();
+  showToast('Added "' + name + '" to ' + sys);
+}
+
+document.getElementById('addBtn').onclick = ()=>{
+  const name = document.getElementById('addName').value.trim();
+  if(!name) return;
+  requirePluginAuth(doAddPlugin);
+};
+
+document.getElementById('addName').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('addBtn').click();
+});
+
+document.getElementById('bulkToggle').onclick = ()=>{
+  document.getElementById('bulkArea').classList.toggle('open');
+};
+
+function doBulkAddPlugins(){
+  const sys = addSystemSelect.value;
+  const lines = document.getElementById('bulkText').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!sys || lines.length===0) return;
+  let added = 0;
+  lines.forEach(name=>{
+    if(!data.systems[sys].some(n=>n.toLowerCase()===name.toLowerCase())){
+      data.systems[sys].push(name);
+      added++;
+    }
+  });
+  saveData(data);
+  document.getElementById('bulkText').value = '';
+  renderSystemTabs();
+  renderResults();
+  showToast('Added ' + added + ' plugin' + (added===1?'':'s') + ' to ' + sys);
+}
+
+document.getElementById('bulkAddBtn').onclick = ()=>{
+  const lines = document.getElementById('bulkText').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length===0) return;
+  requirePluginAuth(doBulkAddPlugins);
+};
+
+/* ---- Plugin edit password gate ---- */
+
+const PLUGIN_PW_KEY = 'pluginEditPasswordHash_v1';
+let pendingPluginAction = null;
+
+const pluginAuthOverlay = document.getElementById('pluginAuthOverlay');
+const pluginAuthSub = document.getElementById('pluginAuthSub');
+const pluginAuthSetPassword = document.getElementById('pluginAuthSetPassword');
+const pluginAuthEnterPassword = document.getElementById('pluginAuthEnterPassword');
+const pluginAuthSetError = document.getElementById('pluginAuthSetError');
+const pluginAuthError = document.getElementById('pluginAuthError');
+
+function closePluginAuthModal(){
+  pluginAuthOverlay.classList.remove('open');
+  pendingPluginAction = null;
+  document.getElementById('paNewPassword1').value = '';
+  document.getElementById('paNewPassword2').value = '';
+  document.getElementById('pluginAuthPasswordInput').value = '';
+  pluginAuthSetError.classList.remove('show');
+  pluginAuthError.classList.remove('show');
+}
+
+function openPluginSetPasswordModal(){
+  pendingPluginAction = null;
+  pluginAuthSub.textContent = 'Set a password to protect edits to the plugin lists.';
+  pluginAuthSetPassword.style.display = '';
+  pluginAuthEnterPassword.style.display = 'none';
+  pluginAuthOverlay.classList.add('open');
+}
+
+function requirePluginAuth(actionFn){
+  const hasPassword = !!localStorage.getItem(PLUGIN_PW_KEY);
+  pendingPluginAction = actionFn;
+  if(!hasPassword){
+    pluginAuthSub.textContent = 'No edit password set yet — set one first, then try again.';
+    pluginAuthSetPassword.style.display = '';
+    pluginAuthEnterPassword.style.display = 'none';
+    pluginAuthOverlay.classList.add('open');
+    return;
+  }
+  pluginAuthSub.textContent = 'Enter the plugin edit password to continue.';
+  pluginAuthSetPassword.style.display = 'none';
+  pluginAuthEnterPassword.style.display = '';
+  pluginAuthOverlay.classList.add('open');
+}
+
+document.getElementById('pluginPasswordLink').onclick = openPluginSetPasswordModal;
+document.getElementById('pluginAuthSetCancel').onclick = closePluginAuthModal;
+document.getElementById('pluginAuthCancel').onclick = closePluginAuthModal;
+
+document.getElementById('pluginAuthSetConfirm').onclick = ()=>{
+  const p1 = document.getElementById('paNewPassword1').value;
+  const p2 = document.getElementById('paNewPassword2').value;
+  if(!p1 || p1.length < 4){
+    pluginAuthSetError.textContent = 'Password must be at least 4 characters.';
+    pluginAuthSetError.classList.add('show');
+    return;
+  }
+  if(p1 !== p2){
+    pluginAuthSetError.textContent = 'Passwords do not match.';
+    pluginAuthSetError.classList.add('show');
+    return;
+  }
+  localStorage.setItem(PLUGIN_PW_KEY, simpleHash(p1));
+  showToast('Plugin edit password set');
+  closePluginAuthModal();
+};
+
+document.getElementById('pluginAuthConfirm').onclick = ()=>{
+  const entered = document.getElementById('pluginAuthPasswordInput').value;
+  const stored = localStorage.getItem(PLUGIN_PW_KEY);
+  if(!entered || simpleHash(entered) !== stored){
+    pluginAuthError.textContent = 'Incorrect password.';
+    pluginAuthError.classList.add('show');
+    return;
+  }
+  const action = pendingPluginAction;
+  closePluginAuthModal();
+  if(action) action();
+};
+
+/* ===================== HARDWARE ===================== */
+
+const HARDWARE_LIMIT = 6;
+const PW_KEY = 'hwMovePasswordHash_v1';
+
+// Not real cryptographic security — this is a deterrent against accidental
+// moves, not a secrets store. Anyone with devtools access can bypass it.
+function simpleHash(str){
+  let hash = 5381;
+  for(let i=0;i<str.length;i++){
+    hash = ((hash << 5) + hash) + str.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return String(hash);
+}
+
+function hwCountFor(sys){
+  return data.hardware.filter(h=>h.system===sys).length;
+}
+
+function renderCapacityBar(){
+  const bar = document.getElementById('capacityBar');
+  bar.innerHTML = '';
+  allSystemNames().forEach(sys=>{
+    const count = hwCountFor(sys);
+    const chip = document.createElement('div');
+    chip.className = 'capacity-chip' + (count >= HARDWARE_LIMIT ? ' full' : '');
+    chip.textContent = sys + ': ' + count + '/' + HARDWARE_LIMIT;
+    bar.appendChild(chip);
+  });
+}
+
+const moveModalOverlay = document.getElementById('moveModalOverlay');
+const moveModalSub = document.getElementById('moveModalSub');
+const moveModalSetPassword = document.getElementById('moveModalSetPassword');
+const moveModalDoMove = document.getElementById('moveModalDoMove');
+const moveTargetSystem = document.getElementById('moveTargetSystem');
+const moveError = document.getElementById('moveError');
+const setPasswordError = document.getElementById('setPasswordError');
+
+let pendingMoveItem = null;
+
+function closeMoveModal(){
+  moveModalOverlay.classList.remove('open');
+  pendingMoveItem = null;
+  document.getElementById('newPassword1').value = '';
+  document.getElementById('newPassword2').value = '';
+  document.getElementById('movePasswordInput').value = '';
+  moveError.classList.remove('show');
+  setPasswordError.classList.remove('show');
+}
+
+function openSetPasswordModal(){
+  pendingMoveItem = null;
+  moveModalSub.textContent = 'Set a password to protect hardware moves.';
+  moveModalSetPassword.style.display = '';
+  moveModalDoMove.style.display = 'none';
+  moveModalOverlay.classList.add('open');
+}
+
+function openMoveModal(hwItem){
+  const hasPassword = !!localStorage.getItem(PW_KEY);
+  pendingMoveItem = hwItem;
+  if(!hasPassword){
+    moveModalSub.textContent = 'No move password set yet — set one first, then try moving this item again.';
+    moveModalSetPassword.style.display = '';
+    moveModalDoMove.style.display = 'none';
+    moveModalOverlay.classList.add('open');
+    return;
+  }
+  moveModalSub.textContent = 'Moving "' + hwItem.description + '" (' + hwItem.assetId + ') — currently ' + (hwItem.system || 'unassigned') + '.';
+  moveModalSetPassword.style.display = 'none';
+  moveModalDoMove.style.display = '';
+  moveTargetSystem.innerHTML = '';
+  allSystemNames().forEach(sys=>{
+    if(sys === hwItem.system) return;
+    const opt = document.createElement('option');
+    opt.value = sys;
+    const count = hwCountFor(sys);
+    opt.textContent = sys + ' (' + count + '/' + HARDWARE_LIMIT + ')';
+    if(count >= HARDWARE_LIMIT) opt.disabled = true;
+    moveTargetSystem.appendChild(opt);
+  });
+  moveModalOverlay.classList.add('open');
+}
+
+document.getElementById('hwPasswordLink').onclick = openSetPasswordModal;
+
+document.getElementById('setPasswordCancel').onclick = closeMoveModal;
+document.getElementById('moveCancel').onclick = closeMoveModal;
+
+document.getElementById('setPasswordConfirm').onclick = ()=>{
+  const p1 = document.getElementById('newPassword1').value;
+  const p2 = document.getElementById('newPassword2').value;
+  if(!p1 || p1.length < 4){
+    setPasswordError.textContent = 'Password must be at least 4 characters.';
+    setPasswordError.classList.add('show');
+    return;
+  }
+  if(p1 !== p2){
+    setPasswordError.textContent = 'Passwords do not match.';
+    setPasswordError.classList.add('show');
+    return;
+  }
+  localStorage.setItem(PW_KEY, simpleHash(p1));
+  showToast('Move password set');
+  closeMoveModal();
+};
+
+document.getElementById('moveConfirm').onclick = ()=>{
+  const entered = document.getElementById('movePasswordInput').value;
+  const stored = localStorage.getItem(PW_KEY);
+  if(!entered || simpleHash(entered) !== stored){
+    moveError.textContent = 'Incorrect password.';
+    moveError.classList.add('show');
+    return;
+  }
+  const target = moveTargetSystem.value;
+  if(!target){
+    moveError.textContent = 'Choose a destination system.';
+    moveError.classList.add('show');
+    return;
+  }
+  if(hwCountFor(target) >= HARDWARE_LIMIT){
+    moveError.textContent = target + ' is already at the 6-unit limit.';
+    moveError.classList.add('show');
+    return;
+  }
+  pendingMoveItem.system = target;
+  saveData(data);
+  showToast('Moved ' + pendingMoveItem.assetId + ' to ' + target);
+  closeMoveModal();
+  renderCapacityBar();
+  renderHwResults();
+};
+
+function populateHwSystemSelect(){
+  hwSystemSelect.innerHTML = '';
+  allSystemNames().forEach(sys=>{
+    const opt = document.createElement('option');
+    opt.value = sys;
+    opt.textContent = sys;
+    hwSystemSelect.appendChild(opt);
+  });
+}
+
+function renderHwResults(){
+  const query = hwSearchInput.value.trim().toLowerCase();
+  hwResultsEl.innerHTML = '';
+
+  let matches = data.hardware.filter(h=>{
+    if(!query) return true;
+    return String(h.assetId).toLowerCase().includes(query) ||
+           String(h.serial).toLowerCase().includes(query) ||
+           String(h.description).toLowerCase().includes(query) ||
+           String(h.pid || '').toLowerCase().includes(query);
+  });
+
+  matches.sort((a,b)=> a.description.localeCompare(b.description) || String(a.assetId).localeCompare(String(b.assetId)));
+
+  hwSearchMeta.textContent = query
+    ? matches.length + ' match' + (matches.length===1?'':'es') + ' for "' + hwSearchInput.value.trim() + '"'
+    : data.hardware.length + ' hardware items on file';
+
+  if(matches.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = query ? 'No hardware matching "' + hwSearchInput.value.trim() + '".' : 'No hardware on file yet.';
+    hwResultsEl.appendChild(empty);
+    return;
+  }
+
+  matches.forEach(h=>{
+    const row = document.createElement('div');
+    row.className = 'hw-row';
+
+    const main = document.createElement('div');
+    main.className = 'hw-main';
+
+    const desc = document.createElement('div');
+    desc.className = 'hw-desc';
+    desc.innerHTML = highlight(h.description, hwSearchInput.value.trim());
+
+    const meta = document.createElement('div');
+    meta.className = 'hw-meta';
+    meta.innerHTML =
+      '<span>Asset: ' + highlight(String(h.assetId), hwSearchInput.value.trim()) + '</span>' +
+      '<span>Serial: ' + highlight(String(h.serial), hwSearchInput.value.trim()) + '</span>' +
+      (h.pid ? '<span>PID: ' + highlight(String(h.pid), hwSearchInput.value.trim()) + '</span>' : '');
+
+    main.appendChild(desc);
+    main.appendChild(meta);
+
+    const right = document.createElement('div');
+    right.className = 'hw-right';
+
+    const sysTag = document.createElement('div');
+    sysTag.className = 'result-system';
+    sysTag.textContent = h.system || 'Unassigned';
+
+    const moveBtn = document.createElement('button');
+    moveBtn.className = 'move-btn';
+    moveBtn.textContent = 'Move';
+    moveBtn.onclick = ()=>openMoveModal(h);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.title = 'Remove this hardware entry';
+    removeBtn.textContent = '✕';
+    removeBtn.onclick = ()=>{
+      data.hardware = data.hardware.filter(x=>x!==h);
+      saveData(data);
+      renderCapacityBar();
+      renderHwResults();
+    };
+
+    right.appendChild(sysTag);
+    right.appendChild(moveBtn);
+    right.appendChild(removeBtn);
+    row.appendChild(main);
+    row.appendChild(right);
+    hwResultsEl.appendChild(row);
+  });
+}
+
+hwSearchInput.addEventListener('input', renderHwResults);
+
+document.getElementById('hwAddBtn').onclick = ()=>{
+  const assetId = document.getElementById('hwAssetId').value.trim();
+  const serial = document.getElementById('hwSerial').value.trim();
+  const description = document.getElementById('hwDescription').value.trim();
+  const system = hwSystemSelect.value;
+  if(!assetId || !description){
+    showToast('Asset ID and description are required');
+    return;
+  }
+  if(data.hardware.some(h=>String(h.assetId).toLowerCase()===assetId.toLowerCase())){
+    showToast('Asset ID already on file');
+    return;
+  }
+  if(system && hwCountFor(system) >= HARDWARE_LIMIT){
+    showToast(system + ' is already at the 6-unit limit');
+    return;
+  }
+  data.hardware.push({ pid: '', assetId, description, serial, system });
+  saveData(data);
+  document.getElementById('hwAssetId').value = '';
+  document.getElementById('hwSerial').value = '';
+  document.getElementById('hwDescription').value = '';
+  renderCapacityBar();
+  renderHwResults();
+  showToast('Added ' + assetId + ' to ' + (system || 'no system'));
+};
+
+/* ===================== EXPORT / IMPORT ===================== */
+
+document.getElementById('exportBtn').onclick = ()=>{
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'uad-plugin-library-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById('importBtn').onclick = ()=>{
+  document.getElementById('fileInput').click();
+};
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    try{
+      const imported = JSON.parse(evt.target.result);
+      if(!imported.systems || !imported.hardware){
+        showToast('That file is not a recognised backup');
+        return;
+      }
+      data = imported;
+      activeSystem = Object.keys(data.systems)[0] || null;
+      saveData(data);
+      renderSystemTabs();
+      renderResults();
+      populateAddSystemSelect();
+      populateHwSystemSelect();
+      renderCapacityBar();
+      renderHwResults();
+      showToast('Library imported');
+    }catch(err){
+      showToast('Could not read that file');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// Init
+renderSystemTabs();
+populateAddSystemSelect();
+renderResults();
+populateHwSystemSelect();
+renderCapacityBar();
+renderHwResults();
+</script>
+
+</body>
+</html>
