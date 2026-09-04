@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UAD Plugin & Hardware Guide — Solotech UK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14111f;
+    --panel: #1c1830;
+    --panel-raised: #24203d;
+    --hairline: #3a3260;
+    --text: #ece8f7;
+    --text-dim: #a89fc4;
+    --indigo: #8f6fe0;
+    --indigo-dim: #5b4899;
+    --lavender: #d8d0ee;
+    --danger: #c26a7a;
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+  }
+  .wrap{
+    max-width:800px;
+    margin:0 auto;
+    padding:28px 20px 100px;
+  }
+  .faceplate{
+    background:linear-gradient(180deg, var(--panel-raised), var(--panel));
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:18px 22px;
+    margin-bottom:28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .led{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--indigo);
+    box-shadow:0 0 6px 1px rgba(143,111,224,0.7);
+    flex-shrink:0;
+  }
+  .brand h1{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    margin:0;
+  }
+  .brand p{margin:2px 0 0;font-size:12px;color:var(--text-dim);}
+  .back-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    padding:8px 14px;
+    background:transparent;
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    text-decoration:none;
+  }
+  .back-link:hover{border-color:var(--indigo-dim);color:var(--indigo);}
+
+  h2{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--lavender);
+    border-bottom:1px solid var(--hairline);
+    padding-bottom:10px;
+    margin:38px 0 16px;
+  }
+  h2:first-of-type{margin-top:0;}
+  h3{
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    color:var(--text);
+    margin:24px 0 8px;
+  }
+  p{font-size:14px;color:var(--text);margin:0 0 12px;}
+  ul, ol{font-size:14px;margin:0 0 14px;padding-left:22px;}
+  li{margin-bottom:6px;}
+  strong{color:var(--lavender);}
+  code{
+    font-family:'IBM Plex Mono',monospace;
+    background:var(--panel-raised);
+    border:1px solid var(--hairline);
+    padding:1px 6px;
+    border-radius:var(--radius);
+    font-size:12.5px;
+    color:var(--indigo);
+  }
+  a{color:var(--indigo);}
+  .note{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-left:3px solid var(--indigo);
+    border-radius:var(--radius);
+    padding:12px 16px;
+    font-size:13.5px;
+    color:var(--text-dim);
+    margin:16px 0;
+  }
+  .note strong{color:var(--text);}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    margin:16px 0;
+  }
+  th, td{
+    border:1px solid var(--hairline);
+    padding:8px 10px;
+    text-align:left;
+  }
+  th{
+    background:var(--panel-raised);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  hr{border:none;border-top:1px solid var(--hairline);margin:32px 0;}
+  .source-note{font-size:12px;color:var(--text-dim);font-style:italic;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="faceplate">
+    <div class="brand">
+      <div class="led"></div>
+      <div>
+        <h1>UAD PLUGIN & HARDWARE GUIDE</h1>
+        <p>Solotech UK</p>
+      </div>
+    </div>
+    <a class="back-link" href="index.html">← Back to plugin library</a>
+  </div>
+
+  <p>This guide covers two things: how to use the UAD Plugin Library database, and how UAD's own licensing system works — including the workaround for moving hardware between systems.</p>
+
+  <h2>Part 1 — Using the UAD Plugin Library Database</h2>
+
+  <p>The database has two views, switched via the tabs at the top: <strong>UAD Plugins</strong> and <strong>UAD Hardware</strong>.</p>
+
+  <h3>Searching plugins</h3>
+  <ul>
+    <li>Type a plugin name into the search box. It searches across <strong>every system at once</strong> and shows which system(s) already have it.</li>
+    <li>No search term = shows the full list for whichever system tab is currently selected.</li>
+    <li>The system tabs (System 1–6) show a live count of how many plugins are in each.</li>
+  </ul>
+
+  <h3>Searching hardware</h3>
+  <ul>
+    <li>Switch to the <strong>UAD Hardware</strong> tab.</li>
+    <li>Search by asset ID, serial number, description, or PID.</li>
+    <li>The capacity bar at the top shows every system's hardware count as <code>System X: n/6</code>, turning red when a system is full. <strong>Six units is UAD's own hard limit per system</strong> — see Part 2.</li>
+  </ul>
+
+  <h3>Adding, removing, and moving — now password protected</h3>
+  <p>Adding or removing a plugin, adding hardware, and moving hardware between systems all now require a password, to stop accidental edits or mistakes going straight in unchallenged.</p>
+  <ul>
+    <li><strong>Plugin edits</strong> (add / bulk-add / remove) are gated by one password, set or changed via the 🔒 link on the Plugins tab.</li>
+    <li><strong>Hardware moves</strong> are gated by a separate password, set or changed via the 🔒 link on the Hardware tab.</li>
+    <li>Changing either password now requires entering the <strong>current</strong> password first — it can't just be overwritten by anyone who clicks the link.</li>
+  </ul>
+  <div class="note"><strong>Don't know the current password?</strong> Ask whoever administers the tool for the team (Phil). It isn't published here on purpose — this guide is hosted on the same public GitHub Pages site as the tool, and printing the password in a public document would defeat the point of having one.</div>
+
+  <h3>Move hardware — an important distinction</h3>
+  <p>The "Move" button on a hardware row only updates <strong>this database's own record</strong> — it does not touch the real UAD account, plugin authorization, or physical device registration in any way. If you use it, you still need to do the real-world UAD transfer described in Part 3, and vice versa: if you do a real UAD transfer, remember to update the record here to match.</p>
+
+  <h3>Export / Import</h3>
+  <p>The Export button downloads a full backup (plugins, hardware, and system assignments) as a JSON file. Import loads one back in. Since each person's additions save only to their own browser, this is the way to move your data to someone else or to a different machine — see the hosting guide for more on why.</p>
+
+  <h3>Using the database to check a client spec</h3>
+  <p>This is the main reason the tool exists — figuring out fast whether we can cover a client's plugin rider, and if not, what it'd take to get there.</p>
+  <ol>
+    <li><strong>Get the client's plugin list.</strong> Riders typically name specific UAD plugins the engineer wants available.</li>
+    <li><strong>Search each plugin name</strong> in the UAD Plugins tab. For each one, note which system(s) currently have it.</li>
+    <li><strong>Look for a single system that covers the whole list.</strong> A piece of hardware only unlocks the plugins registered to <em>its own system</em> (Part 2 explains why). If the client's plugins are spread across two or three of our systems, no single rig we own can run all of them at once as things stand.</li>
+    <li><strong>For anything missing, work out which of these applies:</strong>
+      <ul>
+        <li><strong>We own it, just on a different system</strong> → would need a hardware move (Part 3) to consolidate it onto the system going out to that job. Slow and has real trade-offs — read Part 3 before promising it.</li>
+        <li><strong>We don't own it at all</strong> → straightforward purchase, then register it into the right system.</li>
+      </ul>
+    </li>
+    <li><strong>Check hardware capacity too.</strong> Even where we hold the right plugins, adding a device to that system needs a free slot (see the capacity bar) — a system already at 6/6 can't take on more hardware, full stop.</li>
+    <li><strong>Adding anything missing now needs the edit password</strong> (see above) — if you're checking a spec but can't make the fix yourself, flag it to whoever holds the password rather than leaving the database out of date.</li>
+    <li><strong>Keep the answer simple for whoever's quoting the job:</strong> "covered as-is", "needs a plugin purchase", or "needs a hardware/system reshuffle" — and update the database once any of that actually happens, so it stays trustworthy for the next spec check.</li>
+  </ol>
+
+  <hr>
+
+  <h2>Part 2 — How UAD Licensing Actually Works</h2>
+
+  <h3>The account → system → device → license hierarchy</h3>
+  <ul>
+    <li>Everything sits under one <strong>UA account</strong> (my.uaudio.com / uaudio.com account).</li>
+    <li>Within that account, hardware is grouped into <strong>Systems</strong>. A system is just a named bucket of UAD-2/Apollo/Satellite devices that all share one pool of plugin licenses.</li>
+    <li><strong>UAD DSP plugin licenses are authorized to a System, not to an individual device.</strong> Any device sitting in that system can run any plugin licensed to that system — but only within that system.</li>
+    <li>A device in System 1 has <strong>zero access</strong> to plugins licensed under System 2 in the same account, even though it's the same account. This is exactly why our database is organized by system — it mirrors UAD's own structure, not something we invented.</li>
+  </ul>
+
+  <h3>The limits that actually bite</h3>
+  <ul>
+    <li><strong>Six UAD-2/Apollo devices per system, hard cap, no exceptions.</strong> This is UAD's own limit — it's why our database enforces the same 6-unit cap on the hardware tab.</li>
+    <li><strong>Licenses can't be split or cherry-picked in a transfer.</strong> Any transfer of hardware out of a system takes <em>either</em> zero plugins <em>or</em> every UAD DSP + perpetual UADx license in that entire system with it. There's no way to say "take these three plugins but not those two."</li>
+    <li><strong>Once plugins are merged into a combined account, they can't be un-merged.</strong> If you ever transfer plugins into an account alongside hardware, that's permanent — UA will not split them back out later.</li>
+    <li><strong>Registering a 7th device auto-creates a brand-new, empty system.</strong> It won't have access to any existing plugin licenses — you'd need to buy fresh licenses for it or physically move a device out of an existing (full) system to make room.</li>
+    <li><strong>There's no self-service "move device between my own systems" button.</strong> UAD Customer Care will do this <strong>once, per account, as a manual courtesy</strong> — after that, or if you need it more than once, the only route left is the transfer-as-if-selling workaround in Part 3.</li>
+    <li><strong>Warranty note:</strong> any hardware re-registered as "used" (which is exactly what the workaround in Part 3 involves) loses the original-owner warranty. Worth knowing before doing this on brand-new kit.</li>
+  </ul>
+
+  <p class="source-note">Source: Universal Audio's own support documentation (help.uaudio.com), current as of research date September 2026.</p>
+
+  <hr>
+
+  <h2>Part 3 — Moving Hardware Between Systems (the workaround)</h2>
+
+  <p>Because there's no repeatable self-service way to move a device between our own systems, and because a straight transfer always drags every plugin license in that system along with it, the practical workaround is to route the device through a <strong>second, "dummy" UA account</strong> that holds no plugins of its own — using it purely as a relay so the hardware arrives at its destination system with nothing attached.</p>
+
+  <div class="note"><strong>Before you start:</strong> this only works cleanly if you choose "No" to transferring plugins at every step below. If you accidentally say "Yes," the entire system's plugin library goes with the hardware, and — per Part 2 — that cannot be undone.</div>
+
+  <h3>Step-by-step</h3>
+  <ol>
+    <li><strong>Set up (once) a dummy UA account.</strong> A separate email address registered at uaudio.com, used only as a relay — it should never hold any purchased plugins of its own.</li>
+    <li><strong>From the Solotech account</strong>, go to the Hardware page (uaudio.com account → Hardware) and find the device you want to move.</li>
+    <li>Click <strong>Transfer a Device</strong> on that unit.</li>
+    <li>When asked "Transfer Plug-ins?", select <strong>No</strong>. This is the critical step — it keeps every plugin license in its current system, and only the physical device leaves.</li>
+    <li>Submit. The device now shows as <strong>pending transfer</strong> in the Solotech account and is no longer usable there.</li>
+    <li><strong>Log into the dummy account.</strong> Go to the Hardware Registration page (uaudio.com/pages/register), select the device type, choose <strong>Used</strong>, and enter the serial number.</li>
+    <li>Install/open <strong>UA Connect</strong> and the UAD software if not already present, connect only that device, open <strong>UAD Meter & Control Panel</strong>, and click <strong>Authorize Plug-Ins</strong>. This completes registration into the dummy account — the device will pick up only the free Analog Classics bundle that comes with any used unit, nothing more, since no licenses were transferred.</li>
+    <li><strong>From the dummy account</strong>, immediately start a second transfer on the same device: Hardware page → <strong>Transfer a Device</strong> → again select <strong>No</strong> for plugins.</li>
+    <li><strong>Log back into the Solotech account</strong> and register the device again as <strong>Used</strong> hardware (same registration flow as steps 6–7, serial number → Authorize Plug-Ins). This time, when the system prompts you to choose which system to register it into, <strong>select the destination system</strong> — this is the point where the device actually lands where you want it.</li>
+    <li>Click <strong>Authorize Plug-Ins</strong> in UAD Meter & Control Panel to finish. The device now has access to whatever plugins are already licensed to that destination system — which is the point of the whole exercise.</li>
+    <li><strong>Update our database:</strong> use the "Move" button on the hardware entry to relabel it to the new system (with the move password), so our records match what's actually registered with UAD.</li>
+  </ol>
+
+  <h3>A cheaper first option</h3>
+  <p>Before doing any of the above, it's worth remembering UAD Customer Care will do <strong>one</strong> system-to-system move per account for free, no dummy-account dance required. If this hasn't been used yet on the Solotech account, that's the move to spend it on — save the workaround above for anything after that.</p>
+
+  <h3>Practical caveats</h3>
+  <ul>
+    <li>UAD's own transfer step typically takes <strong>a couple of business days</strong> to process on their end — this isn't instant, so it needs to be planned ahead of a job, not done the morning of.</li>
+    <li>Registering hardware as "used" at any point in this process forfeits the manufacturer warranty for that unit going forward.</li>
+    <li>If a transfer is started by mistake, it can be cancelled while still pending — but only before the receiving account completes registration. Once registered on the other end, it's done.</li>
+  </ul>
+
+  <p class="source-note">Sources: Universal Audio Support Home (help.uaudio.com) — "How To Transfer Ownership of Apollo, Satellite, or PCIe UAD-2 Devices," "How to Register Used Apollo, Satellite and PCIe Hardware," "Hardware, UAD DSP Plug-ins and Systems Explained," and "How to Merge UA Accounts." Verified September 2026.</p>
+
+</div>
+</body>
+</html>
